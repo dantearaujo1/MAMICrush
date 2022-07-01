@@ -1,8 +1,10 @@
 class EndScene implements IScene{
-  SceneManager  m_director;
-  ControlP5     m_controlGUI;
-  ParticleSystem m_particleSystem;
-  int x;
+  SceneManager    m_director;
+  ControlP5       m_controlGUI;
+  ParticleSystem  m_particleSystem;
+  Tween           m_textTween;
+  String          m_text;
+
   EndScene(SceneManager director, PApplet app){
     if (director != null){
       m_director = director;
@@ -30,7 +32,9 @@ class EndScene implements IScene{
       .setColorActive(color(255,255,0,0))
       .getCaptionLabel()
       .setFont(new ControlFont(g_gameFont,int(9*g_scaleFactorX)));
-      m_particleSystem = new ParticleSystem();
+    m_particleSystem = new ParticleSystem();
+    m_text = "Congratulation, you have beaten MAMI this semester";
+    m_textTween = new Tween(5.0,-int(textWidth(m_text)/2), int(width/2));
   }
   void onPause(){
 
@@ -58,6 +62,7 @@ class EndScene implements IScene{
 
   void update(float dt){
     m_particleSystem.update(dt);
+    m_textTween.update(dt);
   }
 
   void lateUpdate(float dt){
@@ -67,6 +72,8 @@ class EndScene implements IScene{
   void draw(){
     background(0);
     m_particleSystem.draw();
+    fill(255,255,255);
+    text(m_text,m_textTween.getPosition(),height/2);
   }
 
   void lateDraw(){
