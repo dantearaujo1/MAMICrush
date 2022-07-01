@@ -85,14 +85,13 @@ class ParticleSystem{
   }
 
   void update(float dt){
-    if(random(1) < 0.2){
+    if(random(1) < 0.15){
       m_particles.add(0,new Particle(random(5,width-5),height+100,true));
     }
 
     if(m_particles.size()>100){
       m_particles.remove(99);
     }
-    println(m_particles.size());
 
     for (int i = 0; i < m_particles.size(); i++){
       Particle c = m_particles.get(i);
@@ -101,14 +100,39 @@ class ParticleSystem{
       }
       else if (c.shouldExplode()){
         m_particles.remove(c);
-        for (int j = 0; j < 10; j++){
+        float type = random(1);
+        for (float j = 0; j < TWO_PI; j+= TWO_PI/50){
           Particle n = new Particle(c.m_pos.x,c.m_pos.y, false);
-          n.m_vel.set(random(-200,200),random(-200,200));
+          float r;
+          float x;
+          float y;
+          if(type < 0.4){
+            r = 10;
+            x = r * 16 * pow(sin(j),3);
+            y = -r * (13 * cos(j) - 5 * cos(2*j) - 2 * cos(3*j) - cos(4*j));
+          }
+          else if(type >= 0.4 && type < 0.7){
+            r = 200;
+            x = r * cos(j);
+            y = r * sin(j);
+          }
+          else if(type >= 0.7 && type < 0.9){
+            r = 200;
+            x = r * pow(cos(j),5);
+            y = r * pow(sin(j),5);
+          }
+          else{
+            r = 0;
+            x = random(-200*g_scaleFactorX,200*g_scaleFactorX);
+            y = random(-200*g_scaleFactorY,200*g_scaleFactorY);
+          }
+          n.m_vel.set(x,y);
           n.m_acc.set(0,0);
+          n.m_lifeSpan = random(0,2);
           n.m_size.set(c.m_size.x/2,c.m_size.y/2);
           n.m_color = c.m_color;
           m_particles.add(n);
-        }
+          }
       }
       else{
         m_particles.remove(c);
