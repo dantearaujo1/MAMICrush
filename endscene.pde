@@ -1,6 +1,8 @@
 class EndScene implements IScene{
   SceneManager  m_director;
   ControlP5     m_controlGUI;
+  ParticleSystem m_particleSystem;
+  int x;
   EndScene(SceneManager director, PApplet app){
     if (director != null){
       m_director = director;
@@ -28,7 +30,7 @@ class EndScene implements IScene{
       .setColorActive(color(255,255,0,0))
       .getCaptionLabel()
       .setFont(new ControlFont(g_gameFont,int(9*g_scaleFactorX)));
-
+      m_particleSystem = new ParticleSystem();
   }
   void onPause(){
 
@@ -55,7 +57,7 @@ class EndScene implements IScene{
   }
 
   void update(float dt){
-
+    m_particleSystem.update(dt);
   }
 
   void lateUpdate(float dt){
@@ -63,8 +65,8 @@ class EndScene implements IScene{
   }
 
   void draw(){
-    fill(255,255,0);
-    rect(0,0,30,30);
+    background(0);
+    m_particleSystem.draw();
   }
 
   void lateDraw(){

@@ -27,9 +27,6 @@ class Game{
     }
   }
 
-  void loadLevel(){
-
-  }
 
   SceneManager getDirector(){
     return m_director;

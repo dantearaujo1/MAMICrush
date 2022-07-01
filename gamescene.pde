@@ -21,7 +21,7 @@ class GameScene implements IScene{
     m_board = new Board();
     m_player = new Player();
     m_player.setBoard(m_board);
-    loadLevel("level.json",1);
+    loadLevel("level.json",5);
     textSize(8 * g_scaleFactorX);
   }
   void onExit(){
