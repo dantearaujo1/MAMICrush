@@ -17,6 +17,8 @@
 [] - Make continuos matches
 [] - Add sound to movement -- NOT WORKING
 [] - Add Resource Loader
+[] - Tween should be capable of handle easing functions
+[] - ParticleSystem should be able to handle shapes explosion patterns
 
 
 // BUG:
