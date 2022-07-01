@@ -55,9 +55,8 @@ void setup(){
 
 // GameLoop
 void draw(){
-  background(0);
   CandyCrush.play();
-  noTint();
+  /* noTint(); */
 }
 
 void keyPressed(){
