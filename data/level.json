@@ -25,7 +25,7 @@
       "id":3,
       "countdown":80,
       "goal":350,
-      "maxMoves":6,
+      "maxMoves":10,
       "background":"GROUND"
     }
   ]

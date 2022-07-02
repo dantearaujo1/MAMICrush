@@ -105,6 +105,7 @@ class MenuScene implements IScene{
   }
 
   void draw(){
+    background(0);
     tint(0,53,105);
     image(m_background,m_backgroundPosition.x,m_backgroundPosition.y);
     image(m_background,m_backgroundPosition.x + m_background.width,m_backgroundPosition.y);

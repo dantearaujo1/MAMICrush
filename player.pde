@@ -75,7 +75,6 @@ class Player{
         text("X: " + int(c.m_x),35,height-100);
         text("Y: " + int(c.m_y),90,height-100);
         /* text("CurD: " + nfs(c.m_currentDuration,2,2),0,height-80); */
-        text("GravD: " + nfs(c.m_gravityCurrentDuration,1,2),65,height-80);
         text("StartX: " + c.m_startX,130,height-100);
         text("StartY: " + c.m_startY,190,height-100);
         text("EndX: " + c.m_endX,130,height-80);
@@ -84,6 +83,12 @@ class Player{
         text("SwapAnim: " + c.m_swapAnim,360,height-80);
         text("GravityAnim: " + c.m_gravityAnim,250,height-100);
         text("DeleteAnim: " + c.m_deleteAnim,360,height-100);
+
+        text("GravD: " + nfs(c.m_gravityCurrentDuration,1,2),450,height-80);
+        text("SwapD: " + nfs(c.m_swapCurrentDuration,1,2),450,height-100);
+        text("Moves: " + m_moves,550,height-80);
+        text("InitialD: " + nfs(c.m_initialCurrentDuration,1,2),550,height-100);
+        text("DeleteD: " + nfs(c.m_deleteCurrentDuration,1,2),65,height-80);
       }
       popStyle();
     }
@@ -137,12 +142,12 @@ class Player{
     Candy second = getCandy(m_selectionTwo, m_board.m_candys);
 
     SwapData data = new SwapData(first,second);
-    m_board.swap(data);
 
+    m_board.swap(data);
     m_selectionOne = -1;
     m_selectionTwo = -1;
-    m_moves++;
     m_startSwap = false;
+    m_moves++;
   }
 
   boolean checkSwap(){
@@ -181,13 +186,6 @@ class Player{
     Candy current = getCandy(posx,posy,m_board.m_candys);
     Candy target = getCandy(targetx,targety, m_board.m_candys);
 
-    if(g_debug){
-      println("================================");
-      println("Current type: " + current.m_type);
-      println("Target type: " + target.m_type);
-      println("================================");
-    }
-
     // First we will swap our candy's type so we can check matches
     // In the end we will unswap them if there are no matches
     CANDYTYPES temp = target.m_type;
@@ -198,6 +196,7 @@ class Player{
     // later
     ArrayList<Candy> matchedCandys = new ArrayList<Candy>();
 
+    // Can't swap same type candys
     if(target.m_type == current.m_type){
       return matchedCandys;
     }
@@ -216,7 +215,8 @@ class Player{
 
       for(int side = 0; side < repeatTime; side++){
         Candy sideCandy = horizontalMatches.get(side);
-        horizontalMatches.addAll(findMatchVertical(int(sideCandy.m_x),int(sideCandy.m_y),target.m_type,m_board));
+        ArrayList<Candy> verticalsFromHorizontals = findMatchVertical(int(sideCandy.m_x),int(sideCandy.m_y),target.m_type,m_board);
+        horizontalMatches.addAll(verticalsFromHorizontals);
       }
       matchedCandys.addAll(horizontalMatches);
     }
@@ -230,7 +230,8 @@ class Player{
       int repeatTime = verticalMatches.size();
       for(int side = 0; side < repeatTime; side++){
         Candy sideCandy = verticalMatches.get(side);
-        verticalMatches.addAll(findMatchHorizontal(int(sideCandy.m_x),int(sideCandy.m_y),target.m_type,m_board));
+        ArrayList<Candy> horizontalsFromVerticals = findMatchHorizontal(int(sideCandy.m_x),int(sideCandy.m_y),target.m_type,m_board);
+        verticalMatches.addAll(horizontalsFromVerticals);
       }
 
       matchedCandys.addAll(verticalMatches);

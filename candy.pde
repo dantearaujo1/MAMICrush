@@ -20,8 +20,6 @@ class Candy{
   float m_endX;
   float m_endY;
 
-  boolean m_selected;
-
   float m_initialAnimDuration;
   float m_swapAnimDuration;
   float m_deleteAnimDuration;
@@ -31,12 +29,11 @@ class Candy{
   float m_deleteCurrentDuration;
   float m_gravityCurrentDuration;
 
+  boolean m_selected;
   boolean m_initialAnim;
   boolean m_swapAnim;
   boolean m_deleteAnim;
   boolean m_gravityAnim;
-
-
 
   Candy(int x, int y, CandyCrush.CANDYTYPES type){
     m_x = x;
@@ -59,13 +56,14 @@ class Candy{
     m_swapCurrentDuration = 0.0;
     m_deleteCurrentDuration = 0.0;
     m_gravityCurrentDuration = 0.0;
+
   }
 
   void update(float dt){
     if(m_initialAnim){
       initialAnimation(dt);
     }
-    if(m_swapAnim){
+    else if(m_swapAnim){
       swapAnimation(dt);
     }
     else if(m_deleteAnim){
@@ -79,7 +77,8 @@ class Candy{
   void draw(float offsetX, float offsetY){
     if(m_type != CANDYTYPES.EMPTY){
       if(m_deleteAnim){
-        float a = interpolation(255,0,
+        float a = interpolation(255,
+                                0,
                                 m_deleteCurrentDuration/m_deleteAnimDuration);
         tint(255,a);
       }
@@ -99,29 +98,29 @@ class Candy{
   }
 
   void initialAnimation(float dt){
+    m_initialCurrentDuration += dt;
     if(m_initialCurrentDuration >= m_initialAnimDuration){
       m_initialAnim = false;
-      m_startX = m_endX;
       m_startY = m_endY;
-      m_initialCurrentDuration = m_initialAnimDuration;
+      m_initialCurrentDuration = 0.0;
     }
     m_y = interpolation(m_startY,
                         m_endY,
-                        m_initialCurrentDuration/m_initialAnimDuration);
+                        (m_initialCurrentDuration/m_initialAnimDuration));
 
-    m_initialCurrentDuration += dt;
   }
 
   void deleteAnimation(float dt){
+    m_deleteCurrentDuration += dt;
     if(m_deleteCurrentDuration >= m_deleteAnimDuration){
       m_deleteAnim = false;
       m_type = CANDYTYPES.EMPTY;
       m_deleteCurrentDuration = m_deleteAnimDuration;
     }
-    m_deleteCurrentDuration += dt;
   }
 
   void swapAnimation(float dt){
+    m_swapCurrentDuration += dt;
     if(m_swapCurrentDuration >= m_swapAnimDuration){
       m_swapAnim = false;
       m_swapCurrentDuration = m_swapAnimDuration;
@@ -132,19 +131,18 @@ class Candy{
     m_x = interpolation(m_startX,
                         m_endX,
                         flip(easeOut(m_swapCurrentDuration/m_swapAnimDuration)));
-    m_swapCurrentDuration += dt;
   }
 
   void gravityAnimation(float dt){
+    m_gravityCurrentDuration += dt;
     if(m_gravityCurrentDuration >= m_gravityAnimDuration){
       m_gravityAnim = false;
-      m_gravityCurrentDuration = m_gravityAnimDuration;
-      m_endX = m_startX;
+      m_gravityCurrentDuration = 0;
       m_endY = m_startY;
+      /* m_startY = m_endY; */
     }
+    /* m_y = interpolation(m_startY,m_endY,flip(easeOut(m_gravityCurrentDuration/m_gravityAnimDuration))); */
     m_y = interpolation(m_startY,m_endY,flip(easeOut(m_gravityCurrentDuration/m_gravityAnimDuration)));
-    m_x = interpolation(m_startX,m_endX,flip(easeOut(m_gravityCurrentDuration/m_gravityAnimDuration)));
-    m_gravityCurrentDuration += dt;
   }
 
 

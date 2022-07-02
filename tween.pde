@@ -35,6 +35,14 @@ class Tween{
     return (m_from + (m_to - m_from) * m_clock/m_duration);
   }
 
+  float getTime(){
+    return m_clock;
+  }
+
+  float getEndTime(){
+    return m_duration;
+  }
+
   void update(float dt){
     if(hasEnded()){
       if(m_loop){

@@ -4,7 +4,9 @@ class GameScene implements IScene{
   Level         m_level;
   SceneManager  m_director;
   ControlP5     m_controlGUI;
+
   boolean       m_playing;
+  float         m_sceneTime;
 
 
   GameScene(SceneManager director, PApplet app){
@@ -21,8 +23,9 @@ class GameScene implements IScene{
     m_board = new Board();
     m_player = new Player();
     m_player.setBoard(m_board);
-    loadLevel("level.json",5);
+    loadLevel("level.json",1);
     textSize(8 * g_scaleFactorX);
+    m_sceneTime = 0;
   }
   void onExit(){
 
@@ -61,6 +64,7 @@ class GameScene implements IScene{
   void update(float dt){
     if(m_playing){
       m_level.update(dt);
+      m_sceneTime+=dt;
     }
 
   }
@@ -87,6 +91,7 @@ class GameScene implements IScene{
     m_level.setBoardBackground(BACKTILES.get(level.getString("background")));
     m_level.setPlayer(m_player);
     m_player.setBoard(m_board);
+    m_player.m_moves = 0;
   }
 
   void resetLevel(){
@@ -94,6 +99,7 @@ class GameScene implements IScene{
   }
 
   void draw(){
+    background(0,50,0);
     m_level.draw();
   }
 

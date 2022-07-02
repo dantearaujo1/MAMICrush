@@ -5,7 +5,9 @@ class Board{
   float m_y;
   Frame m_backgroundTile;
   ArrayList<Candy> m_candysToDelete;
+  ArrayList<Candy> m_candysToGenerate;
   boolean m_shouldUpdateGravity;
+
 
 
   Board(){
@@ -15,6 +17,7 @@ class Board{
   void init(){
     m_candys = new Candy[BOARD_ROWS][BOARD_COLUMNS];
     m_candysToDelete = new ArrayList<Candy>();
+    m_candysToGenerate = new ArrayList<Candy>();
     generateCandys();
     m_x = width/2 - BOARD_COLUMNS * RECT_SIZE * g_scaleFactorX/2 ;
     m_y = height/2 - BOARD_ROWS * RECT_SIZE * g_scaleFactorY/2;
@@ -40,12 +43,6 @@ class Board{
 
 
   void update(float dt){
-    for (int y = 0; y < BOARD_ROWS; y++){
-      for (int x = 0; x < BOARD_COLUMNS; x++){
-        m_candys[y][x].update(dt);
-      }
-    }
-
 
     if(m_candysToDelete.size() > 0){
       m_shouldUpdateGravity = true;
@@ -55,12 +52,19 @@ class Board{
         }
       }
     }
-
-
-    deleteCandys();
     if(m_shouldUpdateGravity){
+      deleteCandys();
       updateGravity();
     }
+
+    for (int y = 0; y < BOARD_ROWS; y++){
+      for (int x = 0; x < BOARD_COLUMNS; x++){
+        m_candys[y][x].update(dt);
+      }
+    }
+
+
+    // This make them fall but its buggy
   }
 
   void updateGravity(){
@@ -91,14 +95,13 @@ class Board{
       // We should empty from our last position to Fill to the
       // First row
       for (int y = posToFill; y > -1; y--){
-        m_candys[y][x].m_type = CANDYTYPES.EMPTY;
+        Candy c = m_candys[y][x];
+        c.m_type = CANDYTYPES.EMPTY;
+        m_candysToGenerate.add(c);
       }
     }
 
     m_shouldUpdateGravity = false;
-      if(g_debug){
-        println("Updated Gravity");
-      }
 
   }
 
@@ -187,7 +190,7 @@ class Board{
         ourCandy.draw(m_x,m_y);
         fill(255,255,255);
         if(g_debug){
-          text(x + "," + y, m_x + x * RECT_SIZE + RECT_SIZE/4, m_y + (1+y) * RECT_SIZE);
+          text(x + "," + y, m_x + x * RECT_SIZE * g_scaleFactorX + RECT_SIZE/4 * g_scaleFactorX, m_y + (1+y) * RECT_SIZE * g_scaleFactorY);
         }
       }
     }
