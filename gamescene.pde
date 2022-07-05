@@ -55,6 +55,10 @@ class GameScene implements IScene{
     }
     else{
       m_player.handleInput(k);
+      if(k == 'e'){
+        m_sceneTime = 0;
+        m_level.m_countDown = 99;
+      }
     }
   }
 
