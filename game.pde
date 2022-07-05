@@ -1,7 +1,6 @@
 class Game{
 
   SceneManager m_director;
-  MenuScene m_menuScene;
 
   float           m_currentTime;
   float           m_deltaTime;
@@ -10,8 +9,10 @@ class Game{
 
   Game(int level, PApplet app){
     m_director = new SceneManager();
-    m_menuScene = new MenuScene(m_director,app);
-    m_director.addScene(m_menuScene);
+    m_director.addScene(new MenuScene(m_director,app);
+    m_currentTime = 0.0;
+    m_lastTime = 0.0;
+    m_deltaTime = 0.0;
   }
 
   void play(){

@@ -121,11 +121,11 @@ class SceneManager{
 
   void run(float dt){
 
-      this.update(dt);
-      this.draw();
+    this.update(dt);
+    this.draw();
 
-      this.lateUpdate(dt);
-      this.lateDraw();
+    this.lateUpdate(dt);
+    this.lateDraw();
     if(m_transition.isStarted()){
       m_transition.draw();
     }
