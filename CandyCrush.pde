@@ -54,7 +54,7 @@ void setup(){
   BACKTILES.put("ICE",g_frames[1]);
   BACKTILES.put("ACID",g_frames[2]);
   BACKTILES.put("GROUND",g_frames[0]);
-
+  BACKTILES.put("HEART",g_frames[4]);
 
   CandyCrush = new Game(0,this);
 }
