@@ -123,14 +123,16 @@ class Candy{
     m_swapCurrentDuration += dt;
     if(m_swapCurrentDuration >= m_swapAnimDuration){
       m_swapAnim = false;
-      m_swapCurrentDuration = m_swapAnimDuration;
+      m_startY = m_endY;
+      m_startX = m_endX;
+      m_swapCurrentDuration = 0.0;
     }
     m_y = interpolation(m_startY,
                         m_endY,
-                        flip(easeOut(m_swapCurrentDuration/m_swapAnimDuration)));
+                        (easeOut(m_swapCurrentDuration/m_swapAnimDuration)));
     m_x = interpolation(m_startX,
                         m_endX,
-                        flip(easeOut(m_swapCurrentDuration/m_swapAnimDuration)));
+                        (easeOut(m_swapCurrentDuration/m_swapAnimDuration)));
   }
 
   void gravityAnimation(float dt){
@@ -141,7 +143,6 @@ class Candy{
       m_endY = m_startY;
       /* m_startY = m_endY; */
     }
-    /* m_y = interpolation(m_startY,m_endY,flip(easeOut(m_gravityCurrentDuration/m_gravityAnimDuration))); */
     m_y = interpolation(m_startY,m_endY,flip(easeOut(m_gravityCurrentDuration/m_gravityAnimDuration)));
   }
 
@@ -157,7 +158,10 @@ class Candy{
 }
 
 class SwapData{
-  SwapData(Candy one, Candy two){
+  SwapData(Player whoSwap, Candy one, Candy two){
+    if(whoSwap != null){
+      m_player = whoSwap;
+    }
     if(one != null){
       m_first = one;
     }
@@ -166,6 +170,7 @@ class SwapData{
     }
   }
 
-  Candy m_first;
-  Candy m_second;
+  Candy   m_first;
+  Candy   m_second;
+  Player  m_player;
 }
