@@ -36,7 +36,7 @@ class Particle{
   }
 
   void update(float dt){
-    m_acc.add(0,9.8 * dt );
+    m_acc.add(0,GRAVITY * dt );
     m_vel.add(m_acc);
     m_pos.add(m_vel.x * dt * g_scaleFactorX, m_vel.y * dt * g_scaleFactorY);
     m_currentTime += dt;

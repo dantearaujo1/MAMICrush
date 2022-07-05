@@ -66,7 +66,9 @@ class Level{
           ,BACKTILES.get("HEART").y + BACKTILES.get("HEART").height);
 
     }
-    text(int(m_player.m_points) + "/" + m_goalPoints, m_board.m_x + textWidth(str(m_player.m_points) + "/" + str(m_goalPoints))/2 , m_board.m_y - 10 * g_scaleFactorY);
+    text(int(m_player.m_points) + "/" + m_goalPoints,
+        m_board.m_x + textWidth(str(m_player.m_points) + "/" + str(m_goalPoints))/2 ,
+        m_board.m_y - 10 * g_scaleFactorY);
     popStyle();
   }
 
