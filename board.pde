@@ -1,27 +1,25 @@
 class Board{
 
-  Candy[][] m_candys;
-  float m_x;
-  float m_y;
-  Frame m_backgroundTile;
-  ArrayList<Candy> m_candysToDelete;
-  ArrayList<Candy> m_candysToGenerate;
-  boolean m_shouldUpdateGravity;
-
-
+  Candy[][]         m_candys;
+  float             m_x;
+  float             m_y;
+  Frame             m_backgroundTile;
+  ArrayList<Candy>  m_candysToDelete;
+  ArrayList<Candy>  m_candysToGenerate;
+  boolean           m_shouldUpdateGravity;
 
   Board(){
     init();
   }
 
   void init(){
-    m_candys = new Candy[BOARD_ROWS][BOARD_COLUMNS];
-    m_candysToDelete = new ArrayList<Candy>();
-    m_candysToGenerate = new ArrayList<Candy>();
+    m_candys =            new Candy[BOARD_ROWS][BOARD_COLUMNS];
+    m_candysToDelete =    new ArrayList<Candy>();
+    m_candysToGenerate =  new ArrayList<Candy>();
+    m_backgroundTile =    new Frame(0,0,32,32);
     generateCandys();
     m_x = width/2 - BOARD_COLUMNS * RECT_SIZE * g_scaleFactorX/2 ;
     m_y = height/2 - BOARD_ROWS * RECT_SIZE * g_scaleFactorY/2;
-    m_backgroundTile = new Frame(0,0,32,32);
   }
 
 
@@ -33,6 +31,19 @@ class Board{
       }
     }
     return this;
+  }
+
+  void regenerateCandy(Candy c){
+        c.m_type = CANDYTYPES.values()[int(random(CANDYTYPES.values().length-1))];
+        c.m_startY = -100;
+        c.m_initialAnim = true;
+        c.m_swapAnim = false;
+        c.m_swapCurrentDuration= 0.0;
+        c.m_gravityAnim = false;
+        c.m_gravityCurrentDuration= 0.0;
+        c.m_deleteAnim = false;
+        c.m_deleteCurrentDuration= 0.0;
+        m_candysToGenerate.remove(c);
   }
 
   Board reuseBoard(){
@@ -52,10 +63,19 @@ class Board{
         }
       }
     }
+
+    if(!m_shouldUpdateGravity && m_candysToGenerate.size() > 0){
+      for(int i = 0; i < m_candysToGenerate.size();i++){
+        Candy c = m_candysToGenerate.get(i);
+        regenerateCandy(c);
+      }
+    }
+
     if(m_shouldUpdateGravity){
       deleteCandys();
       updateGravity();
     }
+
 
     for (int y = 0; y < BOARD_ROWS; y++){
       for (int x = 0; x < BOARD_COLUMNS; x++){
@@ -64,7 +84,6 @@ class Board{
     }
 
 
-    // This make them fall but its buggy
   }
 
   void updateGravity(){
@@ -78,6 +97,7 @@ class Board{
       // If we find an candy in an row we decrease our posToFill
       for (int y = BOARD_ROWS - 1; y > -1; y--){
         if(m_candys[y][x].m_type != CANDYTYPES.EMPTY || m_candys[y][x].m_swapAnim){
+
           m_candys[posToFill][x].m_type = m_candys[y][x].m_type;
           m_candys[posToFill][x].m_endY = m_candys[y][x].m_y;
           m_candys[posToFill][x].m_endX = m_candys[y][x].m_x;
@@ -86,6 +106,10 @@ class Board{
           // Settings these variables to zero make gravity animation smooth
           m_candys[posToFill][x].m_swapCurrentDuration = 0.0;
           m_candys[posToFill][x].m_deleteCurrentDuration = 0.0;
+
+          /* Candy temp = m_candys[posToFill][x]; */
+          /* m_candys[posToFill][x] = m_candys[y][x]; */
+          /* m_candys[y][x] = temp; */
 
 
           posToFill -= 1;
@@ -114,29 +138,68 @@ class Board{
 
 
   void swap(SwapData playerSwap){
-    if (hasMatch()){
 
-      Candy first = playerSwap.m_first;
-      Candy second = playerSwap.m_second;
+    Candy first = playerSwap.m_first;
+    Candy second = playerSwap.m_second;
+    Player player = playerSwap.m_player;
 
-      Candy temp = first.copy();
 
-      first.m_endX = second.m_x;
-      first.m_endY = second.m_y;
-      first.m_type = second.m_type;
+    Candy temp = m_candys[int(first.m_y)][int(first.m_x)];
+    m_candys[int(first.m_y)][int(first.m_x)] = m_candys[int(second.m_y)][int(second.m_x)];
+    m_candys[int(second.m_y)][int(second.m_x)] = temp;
+
+
+    ArrayList<Pair> matchedCandys = new ArrayList<Pair>();
+    ArrayList<Pair> firstcheck = floodFill(m_candys,BOARD_COLUMNS,BOARD_ROWS,int(second.m_x),int(second.m_y),first.m_type);
+    ArrayList<Pair> secondcheck = floodFill(m_candys,BOARD_COLUMNS,BOARD_ROWS,int(first.m_x),int(first.m_y),second.m_type);
+
+    if(firstcheck.size() == 3){
+      if(checkThreeValidPattern(firstcheck)){
+        matchedCandys.addAll(firstcheck);
+        givePoints(player, firstcheck.size());
+      }
+    }
+    else if(firstcheck.size() > 3){
+      matchedCandys.addAll(firstcheck);
+    givePoints(player, firstcheck.size());
+    }
+    if(secondcheck.size() == 3){
+      if(checkThreeValidPattern(secondcheck)){
+        matchedCandys.addAll(secondcheck);
+        givePoints(player, secondcheck.size());
+      }
+    }
+    else if(secondcheck.size() > 3){
+      matchedCandys.addAll(secondcheck);
+      givePoints(player, secondcheck.size());
+    }
+
+    /* givePoints(player, secondcheck.size()*firstcheck.size()); */
+
+    if(matchedCandys.size() >= 3){
+      Candy swapped = first.copy();
+
+      first.m_endX = second.m_endX;
+      first.m_endY = second.m_endY;
       first.m_swapAnim = true;
       first.m_swapCurrentDuration = 0.0;
 
-      second.m_endX = temp.m_x;
-      second.m_endY = temp.m_y;
-      second.m_type = temp.m_type;
-      second.m_swapCurrentDuration = 0.0;
+      second.m_endX = swapped.m_endX;
+      second.m_endY = swapped.m_endY;
       second.m_swapAnim = true;
+      second.m_swapCurrentDuration = 0.0;
 
-      if(g_debug){
-        println("Swapped");
+
+      for (Pair p : matchedCandys){
+        Candy c = getCandy(p.first,p.second,m_candys);
+        m_candysToDelete.add(c);
       }
 
+      setCandysToDelete(m_candysToDelete);
+    }
+
+    if(g_debug){
+      println(m_candysToDelete);
     }
   }
 
@@ -161,6 +224,23 @@ class Board{
       c.m_swapCurrentDuration = 0.0;
       c.m_deleteCurrentDuration = 0.0;
     }
+  }
+
+  boolean checkThreeValidPattern(ArrayList<Pair> candys){
+    if(candys.size() == 3){
+      for(int i = 0; i < candys.size(); i++){
+        for (int j = 1; j < candys.size()-1;j++){
+          if((candys.get(i).first != candys.get(j).first ) && candys.get(i).second != candys.get(j).second){
+            return false;
+          }
+        }
+      }
+    }
+    return true;
+  }
+
+  void givePoints(Player p , int candys){
+      p.m_points += 3*candys;
   }
 
   void draw(){
