@@ -3,29 +3,29 @@
     {
       "id":0,
       "countdown":10,
-      "goal":10,
-      "maxMoves":10,
+      "goal":20,
+      "maxMoves":20,
       "background":"GROUND"
     },
     {
       "id":1,
       "countdown":30,
       "goal":200,
-      "maxMoves":11,
+      "maxMoves":10,
       "background":"LAVA"
     },
     {
       "id":2,
       "countdown":50,
       "goal":300,
-      "maxMoves":9,
+      "maxMoves":8,
       "background":"ICE"
     },
     {
       "id":3,
       "countdown":80,
       "goal":350,
-      "maxMoves":10,
+      "maxMoves":5,
       "background":"GROUND"
     }
   ]
