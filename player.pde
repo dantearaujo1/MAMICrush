@@ -34,7 +34,7 @@ class Player{
   }
 
   void update(float dt){
-    if(checkSwap()){
+    if(m_shouldTest){
       swap();
     }
   }
@@ -77,6 +77,8 @@ class Player{
         /* text("CurD: " + nfs(c.m_currentDuration,2,2),0,height-80); */
         text("StartX: " + c.m_startX,130,height-100);
         text("StartY: " + c.m_startY,190,height-100);
+        text("BoardX: " + m_board.m_candys[int(c.m_endY)][int(c.m_endX)].m_x, 650,height-100);
+        text("BoardY: " + m_board.m_candys[int(c.m_endY)][int(c.m_endX)].m_y, 650,height-80);
         text("EndX: " + c.m_endX,130,height-80);
         text("EndY: " + c.m_endY,190,height-80);
         text("InitialAnim: " + c.m_initialAnim,250,height-80);
@@ -141,154 +143,18 @@ class Player{
     Candy first = getCandy(m_selectionOne, m_board.m_candys);
     Candy second = getCandy(m_selectionTwo, m_board.m_candys);
 
-    SwapData data = new SwapData(first,second);
+    if(first.m_type != second.m_type){
+      SwapData data = new SwapData(this,first,second);
+      m_board.swap(data);
+    }
 
-    m_board.swap(data);
     m_selectionOne = -1;
     m_selectionTwo = -1;
     m_startSwap = false;
+    m_shouldTest = false;
     m_moves++;
   }
 
-  boolean checkSwap(){
-    if(m_shouldTest){
-      m_startSwap = false;
-      m_shouldTest = false;
-
-      Candy first = getCandy(m_selectionOne, m_board.m_candys);
-      Candy second = getCandy(m_selectionTwo, m_board.m_candys);
-
-      ArrayList<Candy> targetMatches = new ArrayList<Candy>();
-      ArrayList<Candy> swappedMatches = new ArrayList<Candy>();
-      targetMatches = hasMatch(int(first.m_x),int(first.m_y),int(second.m_x),int(second.m_y));
-      swappedMatches = hasMatch(int(second.m_x),int(second.m_y),int(first.m_x),int(first.m_y));
-
-      if(swappedMatches.size() > 0 || targetMatches.size()>0){
-        m_board.setCandysToDelete(swappedMatches);
-        m_board.setCandysToDelete(targetMatches);
-        // Here we are increasing points in our strange formula
-        m_points += swappedMatches.size() * swappedMatches.size();
-        m_points += targetMatches.size() * targetMatches.size();
-        m_points += swappedMatches.size() * targetMatches.size()/3;
-
-        m_startSwap = true;
-        return m_startSwap;
-      }
-      else{
-        resetSelection();
-        return m_startSwap;
-      }
-    }
-    return m_startSwap;
-  }
-
-  ArrayList<Candy> hasMatch(int posx, int posy, int targetx, int targety){
-    Candy current = getCandy(posx,posy,m_board.m_candys);
-    Candy target = getCandy(targetx,targety, m_board.m_candys);
-
-    // First we will swap our candy's type so we can check matches
-    // In the end we will unswap them if there are no matches
-    CANDYTYPES temp = target.m_type;
-    target.m_type = current.m_type;
-    current.m_type = temp;
-
-    // Creating an List of Candy's that Matche so we can iterate over and destroy them
-    // later
-    ArrayList<Candy> matchedCandys = new ArrayList<Candy>();
-
-    // Can't swap same type candys
-    if(target.m_type == current.m_type){
-      return matchedCandys;
-    }
-
-    // Creating an horizontal candy list for inserting candy's that are next to us
-    ArrayList<Candy> horizontalMatches = findMatchHorizontal(targetx,targety,target.m_type,m_board);
-    // Adding our target position to the matches list so we can check him later
-    horizontalMatches.add(target);
-
-
-    // If we have 3 or more candy with the same type in horizontal we should add a match
-    // This counts with the one we are looking for
-    // We should look for each candy in vertical direction after they are okay in horizontal
-    if(horizontalMatches.size() >= 3 ){
-      int repeatTime = horizontalMatches.size();
-
-      for(int side = 0; side < repeatTime; side++){
-        Candy sideCandy = horizontalMatches.get(side);
-        ArrayList<Candy> verticalsFromHorizontals = findMatchVertical(int(sideCandy.m_x),int(sideCandy.m_y),target.m_type,m_board);
-        horizontalMatches.addAll(verticalsFromHorizontals);
-      }
-      matchedCandys.addAll(horizontalMatches);
-    }
-
-    // Creating an vertical candy list for inserting candy's that are next to us
-    ArrayList<Candy> verticalMatches = findMatchVertical(targetx,targety,target.m_type,m_board);
-    verticalMatches.add(target);
-
-    // If we have 3 or more candy with the same type in vertical we should add a match
-    if(verticalMatches.size() >= 3){
-      int repeatTime = verticalMatches.size();
-      for(int side = 0; side < repeatTime; side++){
-        Candy sideCandy = verticalMatches.get(side);
-        ArrayList<Candy> horizontalsFromVerticals = findMatchHorizontal(int(sideCandy.m_x),int(sideCandy.m_y),target.m_type,m_board);
-        verticalMatches.addAll(horizontalsFromVerticals);
-      }
-
-      matchedCandys.addAll(verticalMatches);
-    }
-
-    temp = target.m_type;
-    target.m_type = current.m_type;
-    current.m_type = temp;
-
-    return matchedCandys;
-  }
-
-
-  ArrayList<Candy> findMatchHorizontal(int column, int row,CANDYTYPES type,Board b){
-      ArrayList<Candy> result = new ArrayList<Candy>();
-
-      for (int i = column + 1; i < BOARD_COLUMNS; i++){
-        Candy next = getCandy(i,row,b.m_candys);
-        if(next.m_type != type || next.m_type == CANDYTYPES.EMPTY){
-          break;
-        }
-        result.add(next);
-      }
-
-      for (int i = column - 1; i >= 0; i--){
-        Candy next = getCandy(i,row,b.m_candys);
-        if(next.m_type != type || next.m_type == CANDYTYPES.EMPTY){
-          break;
-        }
-        result.add(next);
-      }
-
-      return result;
-  }
-
-  ArrayList<Candy> findMatchVertical(int column, int row, CANDYTYPES type, Board b){
-      ArrayList<Candy> result = new ArrayList<Candy>();
-
-      for (int i = row + 1; i < BOARD_ROWS; i++){
-        Candy next = getCandy(column,i,b.m_candys);
-        if(next.m_type != type || next.m_type == CANDYTYPES.EMPTY){
-          break;
-        }
-        result.add(next);
-      }
-
-
-      for (int i = row - 1; i >= 0; i--){
-        Candy next = getCandy(column,i,b.m_candys);
-        if(next.m_type != type || next.m_type == CANDYTYPES.EMPTY){
-          break;
-        }
-        result.add(next);
-      }
-
-      return result;
-  }
 
 
   void resetSelection(){
@@ -308,3 +174,150 @@ class Player{
   }
 
 }
+
+// DEPRECATED CODE NOT WORKING ANYMORE ========================================
+
+
+  /* // DEPRECATED - MY FIRST ATTEMP TO MAKE IT WORK */
+  /* boolean checkSwap(){ */
+  /*   if(m_shouldTest){ */
+  /*     m_startSwap = false; */
+  /*     m_shouldTest = false; */
+  /**/
+  /*     Candy first = getCandy(m_selectionOne, m_board.m_candys); */
+  /*     Candy second = getCandy(m_selectionTwo, m_board.m_candys); */
+  /**/
+  /*     ArrayList<Candy> targetMatches = new ArrayList<Candy>(); */
+  /*     ArrayList<Candy> swappedMatches = new ArrayList<Candy>(); */
+  /*     targetMatches = hasMatch(int(first.m_x),int(first.m_y),int(second.m_x),int(second.m_y)); */
+  /*     swappedMatches = hasMatch(int(second.m_x),int(second.m_y),int(first.m_x),int(first.m_y)); */
+  /**/
+  /*     if(swappedMatches.size() > 0 || targetMatches.size()>0){ */
+  /*       m_board.setCandysToDelete(swappedMatches); */
+  /*       m_board.setCandysToDelete(targetMatches); */
+  /*       // Here we are increasing points in our strange formula */
+  /*       m_points += swappedMatches.size() * swappedMatches.size(); */
+  /*       m_points += targetMatches.size() * targetMatches.size(); */
+  /*       m_points += swappedMatches.size() * targetMatches.size()/3; */
+  /**/
+  /*       m_startSwap = true; */
+  /*       return m_startSwap; */
+  /*     } */
+  /*     else{ */
+  /*       resetSelection(); */
+  /*       return m_startSwap; */
+  /*     } */
+  /*   } */
+  /*   return m_startSwap; */
+  /* } */
+  /**/
+  /* // DEPRECATED - MY FIRST ATTEMP TO MAKE IT WORK */
+  /* ArrayList<Candy> hasMatch(int posx, int posy, int targetx, int targety){ */
+  /*   Candy current = getCandy(posx,posy,m_board.m_candys); */
+  /*   Candy target = getCandy(targetx,targety, m_board.m_candys); */
+  /**/
+  /*   // First we will swap our candy's type so we can check matches */
+  /*   // In the end we will unswap them if there are no matches */
+  /*   CANDYTYPES temp = target.m_type; */
+  /*   target.m_type = current.m_type; */
+  /*   current.m_type = temp; */
+  /**/
+  /*   // Creating an List of Candy's that Matche so we can iterate over and destroy them */
+  /*   // later */
+  /*   ArrayList<Candy> matchedCandys = new ArrayList<Candy>(); */
+  /**/
+  /*   // Can't swap same type candys */
+  /*   if(target.m_type == current.m_type){ */
+  /*     return matchedCandys; */
+  /*   } */
+  /**/
+  /*   // Creating an horizontal candy list for inserting candy's that are next to us */
+  /*   ArrayList<Candy> horizontalMatches = findMatchHorizontal(targetx,targety,target.m_type,m_board); */
+  /*   // Adding our target position to the matches list so we can check him later */
+  /*   horizontalMatches.add(target); */
+  /**/
+  /**/
+  /*   // If we have 3 or more candy with the same type in horizontal we should add a match */
+  /*   // This counts with the one we are looking for */
+  /*   // We should look for each candy in vertical direction after they are okay in horizontal */
+  /*   if(horizontalMatches.size() >= 3 ){ */
+  /*     int repeatTime = horizontalMatches.size(); */
+  /**/
+  /*     for(int side = 0; side < repeatTime; side++){ */
+  /*       Candy sideCandy = horizontalMatches.get(side); */
+  /*       ArrayList<Candy> verticalsFromHorizontals = findMatchVertical(int(sideCandy.m_x),int(sideCandy.m_y),target.m_type,m_board); */
+  /*       horizontalMatches.addAll(verticalsFromHorizontals); */
+  /*     } */
+  /*     matchedCandys.addAll(horizontalMatches); */
+  /*   } */
+  /**/
+  /*   // Creating an vertical candy list for inserting candy's that are next to us */
+  /*   ArrayList<Candy> verticalMatches = findMatchVertical(targetx,targety,target.m_type,m_board); */
+  /*   verticalMatches.add(target); */
+  /**/
+  /*   // If we have 3 or more candy with the same type in vertical we should add a match */
+  /*   if(verticalMatches.size() >= 3){ */
+  /*     int repeatTime = verticalMatches.size(); */
+  /*     for(int side = 0; side < repeatTime; side++){ */
+  /*       Candy sideCandy = verticalMatches.get(side); */
+  /*       ArrayList<Candy> horizontalsFromVerticals = findMatchHorizontal(int(sideCandy.m_x),int(sideCandy.m_y),target.m_type,m_board); */
+  /*       verticalMatches.addAll(horizontalsFromVerticals); */
+  /*     } */
+  /**/
+  /*     matchedCandys.addAll(verticalMatches); */
+  /*   } */
+  /**/
+  /*   temp = target.m_type; */
+  /*   target.m_type = current.m_type; */
+  /*   current.m_type = temp; */
+  /**/
+  /*   return matchedCandys; */
+  /* } */
+  /**/
+  /**/
+  /* // DEPRECATED - MY FIRST ATTEMP TO MAKE IT WORK */
+  /* ArrayList<Candy> findMatchHorizontal(int column, int row,CANDYTYPES type,Board b){ */
+  /*     ArrayList<Candy> result = new ArrayList<Candy>(); */
+  /**/
+  /*     for (int i = column + 1; i < BOARD_COLUMNS; i++){ */
+  /*       Candy next = getCandy(i,row,b.m_candys); */
+  /*       if(next.m_type != type || next.m_type == CANDYTYPES.EMPTY){ */
+  /*         break; */
+  /*       } */
+  /*       result.add(next); */
+  /*     } */
+  /**/
+  /*     for (int i = column - 1; i >= 0; i--){ */
+  /*       Candy next = getCandy(i,row,b.m_candys); */
+  /*       if(next.m_type != type || next.m_type == CANDYTYPES.EMPTY){ */
+  /*         break; */
+  /*       } */
+  /*       result.add(next); */
+  /*     } */
+  /**/
+  /*     return result; */
+  /* } */
+  /**/
+  /* // DEPRECATED - MY FIRST ATTEMP TO MAKE IT WORK */
+  /* ArrayList<Candy> findMatchVertical(int column, int row, CANDYTYPES type, Board b){ */
+  /*     ArrayList<Candy> result = new ArrayList<Candy>(); */
+  /**/
+  /*     for (int i = row + 1; i < BOARD_ROWS; i++){ */
+  /*       Candy next = getCandy(column,i,b.m_candys); */
+  /*       if(next.m_type != type || next.m_type == CANDYTYPES.EMPTY){ */
+  /*         break; */
+  /*       } */
+  /*       result.add(next); */
+  /*     } */
+  /**/
+  /**/
+  /*     for (int i = row - 1; i >= 0; i--){ */
+  /*       Candy next = getCandy(column,i,b.m_candys); */
+  /*       if(next.m_type != type || next.m_type == CANDYTYPES.EMPTY){ */
+  /*         break; */
+  /*       } */
+  /*       result.add(next); */
+  /*     } */
+  /**/
+  /*     return result; */
+  /* } */
