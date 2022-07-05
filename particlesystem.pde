@@ -30,15 +30,15 @@ class Particle{
       else{
         fill(m_color);
       }
-      ellipse(m_pos.x,m_pos.y, m_size.x,m_size.y);
+      rect(m_pos.x,m_pos.y, m_size.x*g_scaleFactorX,m_size.y*g_scaleFactorY);
       popStyle();
     }
   }
 
   void update(float dt){
-    m_acc.add(0,9.8 * dt);
+    m_acc.add(0,9.8 * dt );
     m_vel.add(m_acc);
-    m_pos.add(m_vel.x * dt, m_vel.y * dt);
+    m_pos.add(m_vel.x * dt * g_scaleFactorX, m_vel.y * dt * g_scaleFactorY);
     m_currentTime += dt;
   }
 
