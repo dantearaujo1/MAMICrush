@@ -1,4 +1,4 @@
-/* import processing.sound.*; */
+import processing.sound.*;
 // Setting Global Variables;
 Game    CandyCrush;
 boolean g_debug;
@@ -10,15 +10,15 @@ PImage  g_image;
 PImage  g_backgroundTile;
 Frame[] g_frames;
 
-/* SoundFile g_audio; */
+SoundFile g_audio;
 
 HashMap<String,Frame> BACKTILES = new HashMap<String,Frame>();
 HashMap<String,Frame> CANDYS = new HashMap<String,Frame>();
 
 
 void settings(){
-  /* fullScreen(P2D); */
-  size(900,600);
+  fullScreen(P2D);
+  /* size(900,600); */
   noSmooth();
 }
 // Setup Initial State
@@ -31,7 +31,7 @@ void setup(){
   g_gameFont = createFont("./Atari-Classic/AtariClassic-Regular.ttf",56);
   g_image= loadImage("candys.png");
   g_backgroundTile = loadImage("./background_tile.png");
-  /* g_audio = new SoundFile(this,"./capareia.wav"); */
+  g_audio = new SoundFile(this,"./capareia.wav");
 
   g_frames = new Frame[7];
   int w = 32;
@@ -40,7 +40,7 @@ void setup(){
     g_frames[i] = new Frame(i*32, 0, w, h);
   }
 
-  /* g_audio.play(); */
+  g_audio.play();
 
   CANDYS.put("RED",g_frames[0]);
   CANDYS.put("GREEN",g_frames[2]);
